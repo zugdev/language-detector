@@ -1,9 +1,10 @@
 import joblib
-import numpy as np
+import uvicorn
+import os
+import zipfile
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import gdown
 
 app = FastAPI()
 
@@ -19,12 +20,26 @@ app.add_middleware(
 class TextRequest(BaseModel):
     text: str
 
-# Load from drive when the server starts
-print("Downloading model from Google Drive...")
-drive_id = '1ruTX5DbM2wPoBU8KShiRoTL2OUSAuTA4'
-output = 'language_detection_model.pkl'
-gdown.download(f'https://drive.google.com/uc?id={drive_id}&confirm=t', output, quiet=False)
-model = joblib.load(output)
+def unzip_model():
+    zip_file = 'language_detection_model.zip'
+    model_file = 'language_detection_model.pkl'
+    
+    if os.path.exists(zip_file) and not os.path.exists(model_file):
+        print(f"Unzipping model from {zip_file}...")
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extractall('.')  # Extract to the current directory
+        print("Model unzipped successfully.")
+    else:
+        if os.path.exists(model_file):
+            print("Model file already exists. Skipping unzip.")
+        else:
+            print("Model zip file not found!")
+
+# Unzip the model if it's not already extracted
+unzip_model()
+
+# Load the model
+model = joblib.load('language_detection_model.pkl')
 print("Model loaded successfully!")
 
 @app.post("/predict")
@@ -40,3 +55,13 @@ async def predict_language(request: TextRequest):
     top_5_langs = sorted(lang_probs, key=lambda x: x[1], reverse=True)[:5]
 
     return {"top_5_languages": [{"language": lang, "probability": prob} for lang, prob in top_5_langs]}
+
+if __name__ == "__main__":
+    # Unzip the model if necessary when starting the server
+    unzip_model()
+
+    # Load the model
+    model = joblib.load('language_detection_model.pkl')
+    print("Model loaded successfully!")
+    
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

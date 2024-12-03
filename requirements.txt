@@ -1,6 +1,4 @@
 fastapi
 uvicorn
 joblib
-gdown
 pydantic
-numpy
