@@ -20,6 +20,10 @@ class TextRequest(BaseModel):
 
 model = joblib.load('language_detection_model.pkl')
 
+@app.route("/")
+def read_root():
+    return {"message": "send a POST req with raw text: "}
+
 @app.post("/predict")
 async def predict_language(request: TextRequest):
     text = request.text
