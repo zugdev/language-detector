@@ -23,7 +23,7 @@ class TextRequest(BaseModel):
 print("Downloading model from Google Drive...")
 drive_id = '1ruTX5DbM2wPoBU8KShiRoTL2OUSAuTA4'
 output = 'language_detection_model.pkl'
-gdown.download(f'https://drive.google.com/uc?id={drive_id}', output, quiet=False)
+gdown.download(f'https://drive.google.com/uc?id={drive_id}&confirm=t', output, quiet=False)
 model = joblib.load(output)
 print("Model loaded successfully!")
 
@@ -36,7 +36,7 @@ async def predict_language(request: TextRequest):
     langs = model.classes_
 
     lang_probs = [(langs[i], probabilities[i]) for i in range(len(langs))]
-    
+
     top_5_langs = sorted(lang_probs, key=lambda x: x[1], reverse=True)[:5]
 
     return {"top_5_languages": [{"language": lang, "probability": prob} for lang, prob in top_5_langs]}
