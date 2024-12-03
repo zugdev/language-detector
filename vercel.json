@@ -11,8 +11,5 @@
         "src": "/(.*)",
         "dest": "/main.py"
       }
-    ],
-    "hooks": {
-        "build": "./install.sh"
-    }
+    ]
 }
