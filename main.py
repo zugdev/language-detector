@@ -1,4 +1,4 @@
-import pickle
+import joblib
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,8 +18,7 @@ app.add_middleware(
 class TextRequest(BaseModel):
     text: str
 
-with open('language_detection_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+model = joblib.load('language_detection_model.pkl')
 
 @app.post("/predict")
 async def predict_language(request: TextRequest):
