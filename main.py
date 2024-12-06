@@ -1,4 +1,4 @@
-import joblib
+import pickle
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,20 +9,17 @@ app = FastAPI()
 # Enable CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://lang-scan.vercel.app, https://localhost:8080"],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["POST"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 class TextRequest(BaseModel):
     text: str
 
-model = joblib.load('language_detection_model.pkl')
-
-@app.route("/")
-def read_root():
-    return {"message": "send a POST req with raw text: "}
+with open('language_detection_model.pkl', 'rb') as f:
+    model = pickle.load(f)
 
 @app.post("/predict")
 async def predict_language(request: TextRequest):
