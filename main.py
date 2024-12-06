@@ -34,6 +34,3 @@ async def predict_language(request: TextRequest):
     top_5_langs = sorted(lang_probs, key=lambda x: x[1], reverse=True)[:5]
 
     return {"top_5_languages": [{"language": lang, "probability": prob} for lang, prob in top_5_langs]}
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
